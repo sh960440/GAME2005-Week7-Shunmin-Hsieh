@@ -33,6 +33,11 @@ void StartScene::draw()
 
 void StartScene::update()
 {
+	if (m_bIsGravityEnabled)
+	{
+		m_move();
+	}
+
 	if (m_displayUI)
 	{
 		m_updateUI();
@@ -291,7 +296,7 @@ void StartScene::m_updateUI()
 		ImGui::Begin("About Physics...", &m_displayAbout, ImGuiWindowFlags_AlwaysAutoResize);
 		ImGui::Separator();
 		ImGui::Text("Authors:");
-		ImGui::Text("Shun-min Hsieh "); // 注意：作業要記得加上所有人姓名
+		ImGui::Text("Shun-min Hsieh,  "); // 注意：作業要記得加上所有人姓名
 		ImGui::End();
 	}
 
@@ -299,8 +304,50 @@ void StartScene::m_updateUI()
 	if (ImGui::Button("Toggle Gravity"))
 	{
 		// 若按了這個按鈕則以下會發生
+		m_bIsGravityEnabled = (m_bIsGravityEnabled) ? false : true; // 切換true/false
+	}
+
+	ImGui::SameLine(); // 放在同一行
+	if (ImGui::Button("Reset All"))
+	{
+		// 若按了這個按鈕則以下會發生
+		m_bIsGravityEnabled = false;
+		m_pShip->setPosition(glm::vec2(400.0f,300.0f));
+		m_fGravity = 9.8f;
+		m_fPPM = 5.0f;
+		m_fAtime = 0.016667f;
+		m_fAngle = 45.0f;
+		m_velocity = 100.0f;
+		m_fVelocityX = 0.0f;
+		m_fVelocityY = 0.0f;
+	}
+
+
+	ImGui::PushItemWidth(80);
+	if (ImGui::SliderFloat("Gravity", &m_fGravity, 0.1f, 30.0f, "%.1f")) // 設定地心引力
+	{
+
+		
+	}
+
+	if (ImGui::SliderFloat("Pixels Per Meter", &m_fPPM, 0.1f, 30.0f, "%.1f"))
+	{
+
 
 	}
+
+	if (ImGui::SliderFloat("Kicking Angle", &m_fAngle, 0.1f, 90.0f, "%.1f"))
+	{
+
+
+	}
+
+	if (ImGui::SliderFloat("Velocity", &m_velocity, 0.0f, 200.0f, "%.1f"))
+	{
+
+
+	}
+
 
 	//ImGui::SameLine();
 
@@ -497,4 +544,26 @@ void StartScene::m_updateUI()
 
 	// Main Window End
 	ImGui::End();
+}
+
+void StartScene::m_move()
+{
+	// P_final = P_initial  + V_inital * T + 1/2T^2
+
+	// Pfx = Pix + Vixcos(theta)T + 1/2AxT^2
+	// Pfy = Piy + Viysin(theta)T + 1/2AyT^2
+	
+	// 乘上PPM等於把meter換成pixel
+	// velocity components
+	m_fVelocityX = (m_velocity * m_fPPM) * cos(m_fAngle * Deg2Rad);
+	m_fVelocityY = (m_velocity * m_fPPM) * -sin(m_fAngle * Deg2Rad);
+	// final velocity vector
+	glm::vec2 velocity_vector = glm::vec2(m_fVelocityX, m_fVelocityY);
+
+	m_acceleration = glm::vec2(0.0f, m_fGravity) * m_fPPM;
+
+	// physics equation
+	m_finalPosition = m_pShip->getPosition() + (velocity_vector * m_fTime) + ((m_acceleration * 0.5f) * (m_fAtime * m_fAtime));
+	m_fAtime += m_fTime;
+	m_pShip->setPosition(m_finalPosition);
 }

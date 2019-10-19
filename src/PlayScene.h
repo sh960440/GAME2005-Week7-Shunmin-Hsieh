@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef __PLAY_SCENE__
 #define __PLAY_SCENE__
 
@@ -88,12 +88,12 @@ private:
 
 	glm::vec2 m_mousePosition;
 
-	// ImGui utility functions
+	// ImGui utility functions 用於介面
 	void m_ImGuiKeyMap();
 	void m_ImGuiSetStyle();
 	void m_updateUI();
 
-	// ImGui menu variables
+	// ImGui menu variables 用於介面
 	bool m_exitApp = false;
 	bool m_displayAbout = false;
 	bool m_displayUI = true;
